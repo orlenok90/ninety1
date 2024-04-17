@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Background with GIFs</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-size: cover;
+            transition: background-image 1s ease-in-out;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .content {
+            z-index: 1;
+            color: white;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay"></div>
+    <div class="content">
+        <h1>Погода в Кезу на данный момент</h1>
+        <p id="weather-description"></p>
+        <p id="temperature"></p>
+    </div>
+
+    <script>
+        // Замените 'YOUR_API_KEY' на ваш ключ API
+        const apiKey = 'e7fa6878d59a4868b2f71126230810';
+        const city = 'Кез'; // Замените на ваш город
+        const apiUrl = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}`;
+
+        const weatherGifs = {
+            clear: "https://media1.tenor.com/m/reA9KS4hEqsAAAAd/dandelion-nature.gif",
+            partlyCloudy: "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExbW1kMm1xaDBwenFzOTNtZm10dDI1eTMxam1xZDZ1c3l2MnMwbDZtcSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/yLrLQPkyz7dLYshVhO/giphy.gif",
+            overcast: "https://media3.giphy.com/media/Pp9W9tuVF5NwQ/200w.webp?cid=ecf05e47c0b469hax8eovqvc4rt8il7k9ucl79gz08opyx07&ep=v1_gifs_related&rid=200w.webp&ct=g",
+            fog: "https://cdnb.artstation.com/p/assets/images/images/021/122/611/original/robert-barc-cloudsparticlesystem.gif?1570476275",
+            heavyRain: "https://i.pinimg.com/originals/81/f8/35/81f8354b66434275e298d93c3b5a85bb.gif",
+            blizzard: "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExbHMxcXE4c2k0MW41NTh4ZTRieGU1MHZ5emxkeW40OHV0Ymd4bWc4eCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Xi2Xu0MejhsUo/giphy.gif",
+            thunderstorm: "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExbGt1ODhnMWlqdG1qN2l6b3VhZXQwYndjaWNtb2ppNHh5MWhjdzJhcCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/HmTLatwLWpTQk/giphy.gif",
+            rain: "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExc29xYzA0dXhndHpyZXU1Y2E0ZTRtZjBvcW9uaGg3NjltbWh4bmJ3eCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/dI3D3BWfDub0Q/giphy.gif",
+            snow: "https://i.gifer.com/9FAm.gif"
+        };
+
+        async function fetchWeather() {
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                const { condition, temp_c } = data.current;
+
+                document.body.style.backgroundImage = `url('${getWeatherGif(condition.code)}')`;
+                document.getElementById('weather-description').innerText = condition.text;
+                document.getElementById('temperature').innerText = `${temp_c}°C`;
+            } catch (error) {
+                console.error('Error fetching weather data:', error);
+            }
+        }
+
+        function getWeatherGif(weatherCode) {
+            if (weatherCode === 1000) { // Clear
+                return weatherGifs.clear;
+            } else if (weatherCode === 1003 || weatherCode === 1006) { // Partly Cloudy
+                return weatherGifs.partlyCloudy;
+            } else if (weatherCode === 1009 || weatherCode === 1006 || weatherCode === 1030) { // Overcast or Cloudy
+                return weatherGifs.overcast;
+            } else if (weatherCode === 1135 || weatherCode === 1147) { // Fog or Mist
+                return weatherGifs.fog;
+            } else if (
+                weatherCode === 1063 || weatherCode === 1183 || weatherCode === 1186 ||
+                weatherCode === 1192 || weatherCode === 1195 || weatherCode === 1240 ||
+                weatherCode === 1243 || weatherCode === 1246
+            ) { // Heavy rain conditions
+                return weatherGifs.heavyRain;
+            } else if (
+                weatherCode === 1205 || weatherCode === 1210 || weatherCode === 1213 ||
+                weatherCode === 1216 || weatherCode === 1225 || weatherCode === 1255 ||
+                weatherCode === 1261 || weatherCode === 1264 || weatherCode === 1279
+            ) { // Blizzard or Heavy snow conditions
+                return weatherGifs.blizzard;
+            } else if (weatherCode === 1273) { // Thunderstorm
+                return weatherGifs.thunderstorm;
+            } else if (
+                weatherCode === 1066 || weatherCode === 1072 || weatherCode === 1150 ||
+                weatherCode === 1153 || weatherCode === 1180 || weatherCode === 1189 ||
+                weatherCode === 1198 || weatherCode === 1201
+            ) { // Rain conditions
+                return weatherGifs.rain;
+            } else if (
+                weatherCode === 1069 || weatherCode === 1075 || weatherCode === 1114 ||
+                weatherCode === 1117 || weatherCode === 1219 || weatherCode === 1222 ||
+                weatherCode === 1228 || weatherCode === 1237 || weatherCode === 1267
+            ) { // Snow conditions
+                return weatherGifs.snow;
+            }
+
+            // Вернуть гифку по умолчанию, если погода не соответствует известным условиям
+            return "DEFAULT_GIF_URL";
+        }
+
+        fetchWeather();
+    </script>
+</body>
+</html>
